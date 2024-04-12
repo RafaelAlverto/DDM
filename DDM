@@ -1,0 +1,54 @@
+import numpy as np
+
+#Dividend Discount Model (DDM)
+
+def dividend_discount_model():
+    # Constants and Inputs
+    D0 = int(input("Enter the stocks initial yearly dividend: "))
+    r = 0.09  # An investor's required rate of return for this stock
+    g_long_term = 0.02  # Long-term growth rate
+    g_short_term = 0.07  # Short-term growth rate for two-stage and initial rate for three-stage
+    short_term_years = 4  # Duration of short-term period
+    g_mid_term = 0.05  # Mid-term growth rate for three-stage
+    mid_term_years = 2  # Duration of mid-term period
+
+    # User input to choose the DDM scenario
+    print("Choose the Dividend Discount Model scenario:\n1. One-Stage (Gordon Growth Model)\n2. Two-Stage\n3. Three-Stage")
+    choice = int(input("Enter the scenario number (1, 2, or 3): "))
+
+    if choice == 1:  # One-Stage Model
+        # Gordon Growth Model
+        stock_value = D0 * (1 + g_long_term) / (r - g_long_term)
+        print(f"Value of the stock (One-Stage): ${stock_value:.2f}")
+
+    elif choice == 2:  # Two-Stage Model
+        # Calculate the present value of dividends for high growth phase
+        pv_dividends = sum([D0 * (1 + g_short_term)**t / (1 + r)**t for t in range(1, short_term_years + 1)])
+        # Calculate the terminal value
+        D_terminal = D0 * (1 + g_short_term)**short_term_years
+        terminal_value = D_terminal * (1 + g_long_term) / (r - g_long_term)
+        # Discount the terminal value 
+        terminal_value_pv = terminal_value / (1 + r)**short_term_years
+        # Total present value of the dividends
+        stock_value = pv_dividends + terminal_value_pv
+        print(f"Value of the stock (Two-Stage): ${stock_value:.2f}")
+
+    elif choice == 3:  # Three-Stage Model
+        # Calculate the present value of dividends for short-term growth
+        pv_dividends_short = sum([D0 * (1 + g_short_term)**t / (1 + r)**t for t in range(1, short_term_years + 1)])
+        # Mid-term dividend compounding and discounting
+        D_start_mid = D0 * (1 + g_short_term)**short_term_years
+        pv_dividends_mid = sum([D_start_mid * (1 + g_mid_term)**t / (1 + r)**(short_term_years + t) for t in range(1, mid_term_years + 1)])
+        # Terminal value calculation 
+        D_start_long = D_start_mid * (1 + g_mid_term)**mid_term_years
+        terminal_value = D_start_long * (1 + g_long_term) / (r - g_long_term)
+        terminal_value_pv = terminal_value / (1 + r)**(short_term_years + mid_term_years)
+        # Total present value of the dividends
+        stock_value = pv_dividends_short + pv_dividends_mid + terminal_value_pv
+        print(f"Value of the stock (Three-Stage): ${stock_value:.2f}")
+
+    else:
+        print("Invalid choice. Please enter 1, 2, or 3.")
+
+# Call the DDM function
+dividend_discount_model()
